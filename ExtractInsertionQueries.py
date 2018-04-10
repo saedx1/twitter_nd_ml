@@ -1,3 +1,4 @@
+import string
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -137,15 +138,16 @@ def getTweetsInsertQuery(tweets):
     counter = 0
     for tweet in tweets:
         try:
-            temp = "REPLACE INTO tweet VALUES('{0}', '{1}', '{2}', '{3}', {4}, '{5}', {6}, {7}, {8});\n".format(tweet[0],
+            temp = "REPLACE INTO tweet VALUES('{0}', '{1}', '{2}', '{3}', {4}, {5},'{6}', {7}, {8}, {9});\n".format(tweet[0],
                                      tweet[1],
                                      tweet[2],
                                      tweet[3],
                                      ensureDBNull(tweet[4]),
-                                     tweet[5],
-                                     ensureDBNull(tweet[6]),
+                                     ensureDBNull(tweet[5]),
+                                     tweet[6],
                                      ensureDBNull(tweet[7]),
-                                     ensureDBNull(tweet[8]))
+                                     ensureDBNull(tweet[8]),
+                                     ensureDBNull(tweet[9]))
         
             query = "{0}{1}".format(query, temp)   
         except Exception as e:
@@ -167,14 +169,14 @@ def getUsersInsertQuery(users):
                                                    user[8])
 
         query = "{0},\n{1}".format(query, temp)                
-    query = "INSERT INTO user VALUES\n{0}".format(query[2:])
+    query = "REPLACE INTO user VALUES\n{0};".format(query[2:])
     return query
 
 def getPlacesInsertQuery(places):
     query = ""
     for place in places:
         try:
-            temp = "('{0}', '{1}', '{2}', '{3}')".format(normalizeTweetText(place[0]),
+            temp = "(NULL,'{0}', '{1}', '{2}', '{3}')".format(normalizeTweetText(place[0]),
                                                          place[1],
                                                          place[2],
                                                          place[3])
@@ -182,7 +184,7 @@ def getPlacesInsertQuery(places):
             query = "{0},\n{1}".format(query, temp)
         except:
             print place
-    query = "INSERT INTO place VALUES\n{0}".format(query[2:])
+    query = "REPLACE INTO place VALUES\n{0};".format(query[2:])
     return query
 
 def convertNanToNone(text):
@@ -249,7 +251,7 @@ if __name__ == '__main__':
     # if(end > 5730):
     #     end = 5730
     # print start, end
-    insrt = GnipDataProcessor("IRMA Data","", chunk_size=1000)
+    insrt = GnipDataProcessor("IRMA","", chunk_size=1000)
     result = []
     mygen = insrt.iter_files()
     for i in mygen:
@@ -257,10 +259,12 @@ if __name__ == '__main__':
 
     ## Get the data and put it in a panda dataframe
     # myfile = open("/home/saed/Desktop/Twitter/abc.json", 'r')
-    for start in range(0,5701,100):
+    print len(result)
+    
+    for start in range(0,len(result),100):
         myjson = []
-        if start == 5700:
-            end = 5730
+        if start + 100 > len(result):
+            end = len(result)
         else:
             end = start + 100
         print start, end
@@ -307,27 +311,32 @@ if __name__ == '__main__':
         mydata['tweet.hashtags'] = mydata['tweet.hashtags'].apply(extractHashTags)
         mydata['tweet.hashtags'] = mydata['tweet.hashtags'].apply(normalizeTweetText)
 
-        tweets = mydata[['tweet.id','tweet.created_at','tweet.text','user.id','tweet.coordinates','location.name','tweet.media','tweet.lang','tweet.hashtags' ]]
+        tweets = mydata[['tweet.id','tweet.created_at','tweet.text','user.id','tweet.coordinates','location.geo.coordinates','location.name','tweet.media','tweet.lang','tweet.hashtags' ]]
 
-        users = mydata[['user.id','user.screen_name','user.location','user.verified','user.followers_count','user.friends_count','user.statuses_count','user.created_at']]
-        users = users.drop_duplicates(subset = ['user.id'])
-        users['klout_score'] = [0.0] * len(users)
-        places = mydata[['location.name','location.displayName','location.twitter_country_code','location.geo.coordinates']]
-        places = places.drop_duplicates(subset = ['location.name'])
+        # users = mydata[['user.id','user.screen_name','user.location','user.verified','user.followers_count','user.friends_count','user.statuses_count','user.created_at']]
+        # users = users.drop_duplicates(subset = ['user.id'])
+        # users['klout_score'] = [0.0] * len(users)
+        # places = mydata[['location.name','location.displayName','location.twitter_country_code','location.geo.coordinates']]
+        # places = places.drop_duplicates(subset = ['location.name'])
         myfile = open('TweetsInsertion.sql', 'a')
+        str1 = ""
         for a in getTweetsInsertQuery(tweets.values).split('\n'):
-            myfile.write(a+'\n')
+            str1 += a+'\n'
+        myfile.write(a)
         myfile.close()
 
-        myfile = open('UsersInsertion.sql', 'a')
-        for a in getUsersInsertQuery(users.values).split('\n'):
-            myfile.write(a+'\n')
-        myfile.close()
+        # str1 = ""
+        # myfile = open('UsersInsertion.sql', 'a')
+        # for a in getUsersInsertQuery(users.values).split('\n'):
+        #     str1 += a+'\n'
+        # myfile.write(a)
+        # myfile.close()
 
-        myfile = open('PlacesInsertion.sql', 'a')
-        for a in getPlacesInsertQuery(places.values).split('\n'):
-            myfile.write(a+'\n')
-        myfile.close()
+        # myfile = open('PlacesInsertion.sql', 'a')
+        # for a in getPlacesInsertQuery(places.values).split('\n'):
+        #     str1 += a+'\n'
+        # myfile.write(a)
+        # myfile.close()
 
 
         del myjson

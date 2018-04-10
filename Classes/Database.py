@@ -2,15 +2,12 @@ import MySQLdb
 import json
 import urllib2
 from time import strftime,strptime
-class Database(object):
-	myDB = None
-	myCursor = None;
+class Database():
 	def __init__(self, db = "geotwitter"):
-		myDB = MySQLdb.connect("uncg.saadmtsa.club",
+		self.myDB = MySQLdb.connect("geotwitter.uncg.edu",
                          "root",
                          "vJnVubg49U",
                          db)
-		myCursor = myDB.cursor()
 
 	def convertDateTime(self, cell):
 		return strftime('%Y-%m-%d %H:%M:%S', strptime(cell,'%Y-%m-%dT%H:%M:%S.000Z'))

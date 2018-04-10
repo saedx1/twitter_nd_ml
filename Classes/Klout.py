@@ -18,13 +18,12 @@ class klout(object):
 	            return None, keyNum
 	        else:
 	            if j != len(kloutKeys):
-	                print j
 	                return klout_getId(screenname, (keyNum + 1) % len(kloutKeys), j + 1)
 	            else :
 	                return 'LIMIT', keyNum
 
 	def klout_getScore(self, kloutId, keyNum, j = 0):
-	    url = 'http://api.klout.com/v2/user.json/{0}/score?key=b95w83cjapt7etbw6657d6jz'.format(kloutId,kloutKeys[keyNum])
+	    url = 'http://api.klout.com/v2/user.json/{0}/score?key={1}'.format(kloutId,kloutKeys[keyNum])
 	    try:
 	        return json.load(urllib2.urlopen(url))
 	    except urllib2.HTTPError as err:
@@ -32,12 +31,11 @@ class klout(object):
 	            return None, keyNum
 	        else:
 	            if j != len(kloutKeys):
-	                print j
 	                return klout_getId(screenname, (keyNum + 1) % len(kloutKeys), j + 1)
 	            else :
 	                return 'LIMIT', keyNum
     def klout_getInfluence(self, kloutId, keyNum, j = 0):
-	    url = 'http://api.klout.com/v2/user.json/{0}/influence?key=b95w83cjapt7etbw6657d6jz'.format(kloutId,kloutKeys[keyNum])
+	    url = 'http://api.klout.com/v2/user.json/{0}/influence?key={1}'.format(kloutId,kloutKeys[keyNum])
 	    try:
 	        return json.load(urllib2.urlopen(url)), keyNum
 	    except urllib2.HTTPError as err:
