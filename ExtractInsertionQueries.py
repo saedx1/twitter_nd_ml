@@ -203,25 +203,24 @@ def insertIntoDB(mycursor, dataset, table):
     elif table == "user":
         getInsertionQueries = getUsersInsertQuery
         
-    first = 0;
-    last = 1000;
+    first = 0
+    last = 1000
     end = len(dataset.values)
     if last > end:
         mycursor.execute(getInsertionQueries(dataset.values))
     else:
         while first < end:
             mycursor.execute(getInsertionQueries(dataset.values[first:last]))
-            first = last;
-            last += 1000;
+            first = last
+            last += 1000
             if last > len(dataset.values):
                 last = end + 1
     mycursor.close()
-    mycursor = mydb.cursor()
     
 def listToStr(cell):
     if cell is None:
         return None
-    mystr = "";
+    mystr = ""
     for i in cell:
         try:
             mystr = mystr + "," + str(i)
