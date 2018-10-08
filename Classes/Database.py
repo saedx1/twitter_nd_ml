@@ -6,8 +6,8 @@ from time import strftime,strptime
 class Database():
 	def __init__(self, db = "geotwitter"):
 		self.myDB = MySQLdb.connect("geotwitter.uncg.edu",
-                         "root",
-                         "vJnVubg49U",
+                         "admin",
+                         "geotwitter",
                          db)
 
 	def convertDateTime(self, cell):
